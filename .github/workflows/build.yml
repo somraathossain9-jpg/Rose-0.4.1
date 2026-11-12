@@ -18,9 +18,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Find the project folder
+        id: proj
+        run: |
+          f=$(find . -name settings.gradle.kts -not -path '*/node_modules/*' | head -n 1)
+          echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
       - name: Build debug APK
+        working-directory: ${{ steps.proj.outputs.dir }}
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: rose-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: '**/build/outputs/apk/debug/*.apk'
